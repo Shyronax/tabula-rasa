@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     {
         m_Character = gameObject.AddComponent<CharacterController>();   
         m_Character.radius = 0.4f;
+        StaminaManager.Instance.InitializeStamina();
     }
 
     private void OnDisable()

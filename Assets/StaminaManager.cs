@@ -23,6 +23,10 @@ public class StaminaManager
     [SerializeField] private float StaminaRegen = 0.5f;
     public float Stamina { get; private set; }
 
+    public void InitializeStamina()
+    {
+        Stamina = MaxStamina;
+    }
     public void RegenStamina()
     {
         Stamina += StaminaRegen;
