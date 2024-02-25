@@ -8,15 +8,23 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float m_TurnSmoothTime = 0.1f; 
     [SerializeField] private float m_DashRange = 50.0f;
     [SerializeField] private float m_DashStaminaCost = 33.3f;
+    [SerializeField] private LayerMask groundMask;
+    private Camera mainCamera;
 
     private CharacterController m_Character;
-    private float m_TurnSmoothVelocity; 
+    private float m_TurnSmoothVelocity;
+
+    private bool m_IsImmobile;
+    private bool m_IsImmune;
 
     private Vector2 m_MoveVector;
 
     #region Initialization  
     private void OnEnable()
     {
+        m_IsImmobile = false;
+        m_IsImmune = false;
+        mainCamera = Camera.main;
         m_Character = gameObject.AddComponent<CharacterController>();   
         m_Character.radius = 0.4f;
         StaminaManager.Instance.InitializeStamina();
@@ -30,6 +38,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()  
     {
+        Aim();
         Move();
         StaminaManager.Instance.RegenStamina();
     }
@@ -41,7 +50,7 @@ public class PlayerController : MonoBehaviour
 
     public void Dash(InputAction.CallbackContext context)
     {
-        if (context.performed && StaminaManager.Instance.Stamina >= 33)
+        if (context.performed && StaminaManager.Instance.Stamina >= 33 && (m_MoveVector.x != 0 || m_MoveVector.y != 0))
         {
             Vector3 direction = new Vector3(m_MoveVector.x, 0f, m_MoveVector.y);
 
@@ -52,14 +61,74 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    public void ReadAttackInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Debug.Log("charging");
+            m_IsImmobile = true;
+        }
 
+        if (context.canceled && context.duration > 1)
+        {
+            Attack();
+            m_IsImmobile = false;
+        } else if (context.canceled)
+        {
+            Debug.Log(context.duration);
+            m_IsImmobile = false;
+        }
+    }
+
+    public void Attack()
+    {
+        Debug.Log("attack");
+        RaycastHit hit;
+        if(Physics.Raycast(transform.position, transform.forward, Mathf.Infinity))
+        {
+            
+        }
+    }
+
+    public void Aim()
+    {
+        var (success, position) = GetMousePosition();
+        if (success)
+        {
+            // Calculate the direction
+            var direction = position - transform.position;
+
+            // You might want to delete this line.
+            // Ignore the height difference.
+            direction.y = 0;
+
+            // Make the transform look in the direction.
+            transform.forward = direction;
+        }
+    }
+
+    private (bool success, Vector3 position) GetMousePosition()
+    {
+        var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out var hitInfo, Mathf.Infinity, groundMask))
+        {
+            // The Raycast hit something, return with the position.
+            return (success: true, position: hitInfo.point);
+        }
+        else
+        {
+            // The Raycast did not hit anything.
+            return (success: false, position: Vector3.zero);
+        }
+    }
 
     private void Move() 
     {
         // Find the direction
         Vector3 direction = new Vector3(m_MoveVector.x, 0f, m_MoveVector.y);    
 
-        if (direction.magnitude >= 0.1f)    
+        if (direction.magnitude >= 0.1f && m_IsImmobile == false)    
         {
             // Get direction angle from direction vector
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;  
