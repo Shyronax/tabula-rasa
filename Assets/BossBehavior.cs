@@ -5,34 +5,36 @@ using UnityEngine;
 public class BossBehavior : MonoBehaviour
 {
 
-    [SerializeField] private GameObject NormalShot;
-    [SerializeField] private GameObject Player;
-    private float ShotDelay;
+    [SerializeField] private GameObject m_NormalShot;
+    [SerializeField] private GameObject m_Player;
+    [SerializeField] private float m_ShotDelay;
+    private float m_ShotTime;
 
     // Start is called before the first frame update
     void Start()
     {
-        ShotDelay = 0;
+        m_ShotTime = 0;
     }
 
     private void TrackPlayer()
     {
-        transform.rotation = Quaternion.Euler(0, (Mathf.Atan2(Player.transform.position.x, Player.transform.position.z) * Mathf.Rad2Deg), 0);
+        transform.rotation = Quaternion.Euler(0, (Mathf.Atan2(m_Player.transform.position.x, m_Player.transform.position.z) * Mathf.Rad2Deg), 0);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (ShotDelay < 0.3)
+        TrackPlayer();
+        if (m_ShotTime < m_ShotDelay)
         {
-            ShotDelay += Time.deltaTime;
+            m_ShotTime += Time.deltaTime;
         }
         else
         {
-            ShotDelay = 0;
-            Instantiate(NormalShot, transform.position, transform.rotation);
-            Instantiate(NormalShot, transform.position, Quaternion.Euler(0, transform.rotation.y - 25 , 0));
-            Instantiate(NormalShot, transform.position, Quaternion.Euler(0, transform.rotation.y + 25 , 0));
+            m_ShotTime = 0;
+            Instantiate(m_NormalShot, transform.position, transform.rotation);
+            Instantiate(m_NormalShot, transform.position, Quaternion.Euler(0, transform.rotation.eulerAngles.y - 25 , 0));
+            Instantiate(m_NormalShot, transform.position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + 25 , 0));
 
         }
 

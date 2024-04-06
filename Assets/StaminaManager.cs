@@ -19,20 +19,20 @@ public class StaminaManager
     }
     #endregion
 
-    [SerializeField] private float MaxStamina = 100.0f;
-    [SerializeField] private float StaminaRegen = 0.5f;
+    [SerializeField] private float m_MaxStamina = 100.0f;
+    [SerializeField] private float m_StaminaRegen = 0.5f;
     public float Stamina { get; private set; }
 
     public void InitializeStamina()
     {
-        Stamina = MaxStamina;
+        Stamina = m_MaxStamina;
     }
     public void RegenStamina()
     {
-        Stamina += StaminaRegen;
-        if (Stamina >= MaxStamina)
+        Stamina += m_StaminaRegen;
+        if (Stamina >= m_MaxStamina)
         {
-            Stamina = MaxStamina;
+            Stamina = m_MaxStamina;
         }
     }
 

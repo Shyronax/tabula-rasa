@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class StateManager : MonoBehaviour
 {
+    [SerializeField] private GameObject m_Boss;
+    [SerializeField] private GameObject m_Player;
     #region Singleton
     private static StateManager m_Instance;
 
@@ -22,13 +24,16 @@ public class StateManager : MonoBehaviour
     #endregion
 
     public GameState State;
-    public void ChangeState(GameState NewState)
+    private void ChangeState(GameState NewState)
     {
         State = NewState;
 
         switch (NewState)
         {
             case GameState.Intro:
+                m_Player.SetActive(true);
+                m_Player.transform.position = new Vector3(0, 0.77f, -5.41f);
+                m_Boss.SetActive(true);
                 break;
             case GameState.Fight:
                 break;
@@ -38,6 +43,10 @@ public class StateManager : MonoBehaviour
                 break;
         }
     }
+
+    public void Restart() {
+        ChangeState(GameState.Intro);
+    }
 }
 public enum GameState
 {
@@ -46,3 +55,4 @@ public enum GameState
     Win,
     Lose
 }
+

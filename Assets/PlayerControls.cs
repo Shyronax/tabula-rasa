@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,8 +9,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float m_TurnSmoothTime = 0.1f; 
     [SerializeField] private float m_DashRange = 50.0f;
     [SerializeField] private float m_DashStaminaCost = 33.3f;
-    [SerializeField] private LayerMask groundMask;
-    private Camera mainCamera;
+    [SerializeField] private LayerMask m_groundMask;
+    [SerializeField] private GameObject m_Boss;
+    private Camera m_mainCamera;
 
     private CharacterController m_Character;
     private float m_TurnSmoothVelocity;
@@ -24,7 +26,7 @@ public class PlayerController : MonoBehaviour
     {
         m_IsImmobile = false;
         m_IsImmune = false;
-        mainCamera = Camera.main;
+        m_mainCamera = Camera.main;
         m_Character = gameObject.AddComponent<CharacterController>();   
         m_Character.radius = 0.4f;
         StaminaManager.Instance.InitializeStamina();
@@ -84,9 +86,14 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("attack");
         RaycastHit hit;
-        if(Physics.Raycast(transform.position, transform.forward, Mathf.Infinity))
+        if(Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))
         {
-            
+            Debug.Log("Hit: " + hit.collider.gameObject.name);
+            hit.collider.gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log("Raycast did not hit anything.");
         }
     }
 
@@ -97,9 +104,6 @@ public class PlayerController : MonoBehaviour
         {
             // Calculate the direction
             var direction = position - transform.position;
-
-            // You might want to delete this line.
-            // Ignore the height difference.
             direction.y = 0;
 
             // Make the transform look in the direction.
@@ -109,16 +113,18 @@ public class PlayerController : MonoBehaviour
 
     private (bool success, Vector3 position) GetMousePosition()
     {
-        var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        var ray = m_mainCamera.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out var hitInfo, Mathf.Infinity, groundMask))
+        if (Physics.Raycast(ray, out var hitInfo, Mathf.Infinity, m_groundMask))
         {
             // The Raycast hit something, return with the position.
+            Debug.Log("raycast got" + hitInfo.point);
             return (success: true, position: hitInfo.point);
         }
         else
         {
             // The Raycast did not hit anything.
+            Debug.Log("raycast didn't hit");
             return (success: false, position: Vector3.zero);
         }
     }

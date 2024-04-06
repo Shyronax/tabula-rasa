@@ -19,9 +19,9 @@ public class BossNormalShot : MonoBehaviour
     {
         if (other.gameObject.tag == PLAYER_TAG)
         {
-            Destroy(other.gameObject);
+            other.gameObject.SetActive(false);
 
-            gameObject.SetActive(false);
+            Destroy(gameObject);
         }
     }
 
